@@ -87,11 +87,14 @@ WSGI_APPLICATION = 'ecommerce_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'yourusername$ecommerce',
-        'USER': 'yourusername',
-        'PASSWORD': 'your-mysql-password',
-        'HOST': 'yourusername.mysql.pythonanywhere-services.com',
+        'NAME': 'ahmedelsayed$default',
+        'USER': 'ahmedelsayed',
+        'PASSWORD': 'Ahmedking12@',
+        'HOST': 'ahmedelsayed.mysql.pythonanywhere-services.com',
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 

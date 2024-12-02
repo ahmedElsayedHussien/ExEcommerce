@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Trader Users{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Trader Users</h2>
+    
+    {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    {% if traders %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Date Joined</th>
+                        <th>Last Login</th>
+                        <th>Products Count</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trader in traders %}
+                    <tr>
+                        <td>{{ trader.username }}</td>
+                        <td>{{ trader.email }}</td>
+                        <td>{{ trader.date_joined|date:"Y-m-d H:i" }}</td>
+                        <td>{{ trader.last_login|date:"Y-m-d H:i"|default:"Never" }}</td>
+                        <td>{{ trader.products.count }}</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'store:user_products' %}?user={{ trader.id }}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-box"></i> View Products
+                                </a>
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#removeTraderModal{{ trader.id }}">
+                                    <i class="fas fa-user-minus"></i> Remove Trader
+                                </button>
+                            </div>
+                            
+                            <!-- Remove Trader Modal -->
+                            <div class="modal fade" id="removeTraderModal{{ trader.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Remove Trader Status</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are you sure you want to remove trader status from {{ trader.username }}?
+                                            This will prevent them from managing products.
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <a href="{% url 'store:admin_remove_trader' trader.id %}" class="btn btn-danger">Remove Trader Status</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No traders found.</p>
+    {% endif %}
+</div>
+{% endblock %}

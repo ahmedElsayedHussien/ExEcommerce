@@ -1,0 +1,88 @@
+{% extends "store/base.html" %}
+{% load static %}
+
+{% block title %}News{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Latest News</h1>
+        {% if user.is_staff %}
+            <a href="{% url 'store:news_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add News Article
+            </a>
+        {% endif %}
+    </div>
+    
+    <div class="row">
+        {% for news_item in news_items %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                {% if news_item.image %}
+                    <img src="{{ news_item.image.url }}" class="card-img-top" alt="{{ news_item.title }}" style="height: 250px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ news_item.title }}</h5>
+                    <p class="card-text text-muted">
+                        <small>
+                            <i class="far fa-calendar-alt me-1"></i>{{ news_item.created|date:"F d, Y" }}
+                            {% if news_item.status == 'draft' %}
+                                <span class="badge bg-warning ms-2">Draft</span>
+                            {% endif %}
+                        </small>
+                    </p>
+                    <p class="card-text">{{ news_item.content|truncatewords:30 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ news_item.get_absolute_url }}" class="btn btn-primary">Read More</a>
+                        {% if user.is_staff %}
+                            <div class="btn-group">
+                                <a href="{% url 'store:news_edit' news_item.slug %}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'store:news_delete' news_item.slug %}" class="btn btn-outline-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No news articles available.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if news_items.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if news_items.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ news_items.previous_page_number }}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in news_items.paginator.page_range %}
+            <li class="page-item {% if news_items.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if news_items.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ news_items.next_page_number }}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

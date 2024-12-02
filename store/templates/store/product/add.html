@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Add New Product{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Add New Product</h2>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if not categories %}
+                        <div class="alert alert-warning">
+                            <strong>Warning:</strong> No categories are available. 
+                            Please create a category first before adding a product.
+                            <a href="{% url 'admin:store_category_add' %}" class="btn btn-sm btn-warning ml-2">
+                                Create Category in Admin
+                            </a>
+                        </div>
+                    {% else %}
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                            {{ form.name|as_crispy_field }}
+                            {{ form.description|as_crispy_field }}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.price|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.category|as_crispy_field }}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.image|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.available|as_crispy_field }}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group mt-3">
+                                <button type="submit" class="btn btn-primary me-2">
+                                    <i class="fas fa-plus"></i> Add Product
+                                </button>
+                                <a href="{% url 'store:user_products' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="alert alert-info mt-3">
+                <strong>Product Adding Tips:</strong>
+                <ul>
+                    <li>Enter a descriptive and unique product name</li>
+                    <li>The URL-friendly slug will be automatically generated from the name</li>
+                    <li>Set a competitive price</li>
+                    <li>Choose an appropriate category</li>
+                    <li>Upload a clear, high-quality product image</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate slug from name if not provided
+    const nameInput = document.querySelector('#id_name');
+    const slugInput = document.querySelector('#id_slug');
+    
+    nameInput.addEventListener('input', function() {
+        if (!slugInput.value) {
+            slugInput.value = nameInput.value
+                .toLowerCase()
+                .replace(/[^\w ]+/g, '')
+                .replace(/ +/g, '-');
+        }
+    });
+});
+</script>
+{% endblock %}

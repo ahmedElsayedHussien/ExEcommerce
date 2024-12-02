@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>My Orders</h1>
+    {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.created|date:"M d, Y" }}</td>
+                        <td>${{ order.get_total_cost }}</td>
+                        <td>
+                            {% if order.paid %}
+                                <span class="badge bg-success">Paid</span>
+                            {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'store:order_detail' order.id %}" 
+                                   class="btn btn-sm btn-info">View</a>
+                                {% if not order.paid %}
+                                    <a href="{% url 'store:order_delete' order.id %}" 
+                                       class="btn btn-sm btn-danger">Delete</a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            You haven't placed any orders yet.
+            <a href="{% url 'store:product_list' %}" class="alert-link">Continue shopping</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

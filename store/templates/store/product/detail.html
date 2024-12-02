@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        {% if product.image %}
+            <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
+        {% else %}
+            <img src="{% static 'images/no_image.png' %}" class="img-fluid rounded" alt="No Image">
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h1 class="mb-3">{{ product.name }}</h1>
+        {% if product.has_valid_discount %}
+            <div class="price-section mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="text-danger display-6 mb-0">
+                        ${{ product.get_discounted_price|floatformat:2 }}
+                    </span>
+                    <div>
+                        <span class="text-muted text-decoration-line-through h5">
+                            ${{ product.price|floatformat:2 }}
+                        </span>
+                        <span class="badge bg-danger ms-2">
+                            -{{ product.discount_percent }}% OFF
+                        </span>
+                    </div>
+                </div>
+                {% if product.discount_end_date %}
+                    <div class="mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            Offer ends: {{ product.discount_end_date|date:"F d, Y H:i" }}
+                        </small>
+                    </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="price-section mb-4">
+                <span class="display-6">${{ product.price|floatformat:2 }}</span>
+            </div>
+        {% endif %}
+
+        <p class="lead mb-4">{{ product.description|linebreaks }}</p>
+
+        {% if user.is_authenticated %}
+            <form action="{% url 'store:cart_add' product.id %}" method="post" class="mb-4">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                </button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                Login to Purchase
+            </a>
+        {% endif %}
+
+        <div class="product-meta">
+            <p class="mb-2">
+                <strong>Category:</strong>
+                <a href="{{ product.category.get_absolute_url }}" class="text-decoration-none">
+                    {{ product.category.name }}
+                </a>
+            </p>
+            {% if product.user %}
+                <p class="mb-2">
+                    <strong>Seller:</strong> {{ product.user.username }}
+                </p>
+            {% endif %}
+            <p class="mb-0">
+                <strong>Added:</strong> {{ product.created|date:"F d, Y" }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

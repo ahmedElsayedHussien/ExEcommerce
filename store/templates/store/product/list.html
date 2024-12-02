@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {% if category %}{{ category.name }}{% else %}Products{% endif %}
+{% endblock %}
+
+{% block content %}
+    <style>
+        .product-img-container {
+            height: 150px;  /* Reduced from 200px to 150px */
+            width: 100%;
+            margin: 0 auto;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+        }
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9rem;  /* Slightly smaller font size */
+        }
+        .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0.8rem;  /* Reduced padding */
+        }
+        .card-title {
+            font-size: 1rem;  /* Smaller title */
+            margin-bottom: 0.5rem;  /* Reduced margin */
+        }
+        .card-text {
+            flex-grow: 1;
+            margin-bottom: 0.5rem;  /* Reduced margin */
+        }
+        .price-section {
+            margin-top: auto;
+            margin-bottom: 0.5rem !important;  /* Reduced margin */
+        }
+        .btn {
+            padding: 0.25rem 0.5rem;  /* Smaller buttons */
+            font-size: 0.875rem;
+        }
+    </style>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">
+                    Categories
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item {% if not category %}active{% endif %}">
+                        <a class="text-decoration-none {% if not category %}text-white{% endif %}" 
+                           href="{% url 'store:product_list' %}">All</a>
+                    </li>
+                    {% for c in categories %}
+                        <li class="list-group-item {% if category.slug == c.slug %}active{% endif %}">
+                            <a class="text-decoration-none {% if category.slug == c.slug %}text-white{% endif %}"
+                               href="{{ c.get_absolute_url }}">{{ c.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for product in products %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="product-img-container">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="product-img" alt="{{ product.name }}">
+                                {% else %}
+                                    <div class="d-flex align-items-center justify-content-center h-100 text-muted">
+                                        <i class="fas fa-image fa-3x"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">{{ product.name }}</h5>
+                                <p class="card-text">{{ product.description|truncatewords:20 }}</p>
+                                <div class="price-section mb-3">
+                                    {% if product.has_valid_discount %}
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="text-danger h5 mb-0">
+                                                ${{ product.get_discounted_price|floatformat:2 }}
+                                            </span>
+                                            <small class="text-muted text-decoration-line-through">
+                                                ${{ product.price|floatformat:2 }}
+                                            </small>
+                                            <span class="badge bg-danger">
+                                                -{{ product.discount_percent }}%
+                                            </span>
+                                        </div>
+                                    {% else %}
+                                        <span class="h5 mb-0">${{ product.price|floatformat:2 }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ product.get_absolute_url }}" class="btn btn-primary">
+                                        View Details
+                                    </a>
+                                    {% if user.is_authenticated %}
+                                        <form action="{% url 'store:cart_add' product.id %}" method="post" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-primary">
+                                                <i class="fas fa-cart-plus"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.paginator.num_pages > 1 %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}{% if category %}&category={{ category.slug }}{% endif %}">
+                                Previous
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if category %}&category={{ category.slug }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.next_page_number }}{% if category %}&category={{ category.slug }}{% endif %}">
+                                Next
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

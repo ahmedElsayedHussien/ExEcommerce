@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pay your order{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-iframe {
+        width: 100%;
+        min-height: 800px;
+        border: none;
+    }
+    .payment-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .order-summary {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <div class="order-summary">
+        <h3>Order Summary</h3>
+        <p><strong>Order #:</strong> {{ order.id }}</p>
+        <p><strong>Total Amount:</strong> EGP {{ order.get_total_cost }}</p>
+    </div>
+
+    <!-- Paymob iframe container -->
+    <div class="payment-form-container">
+        <div id="payment-iframe-container"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Paymob iframe integration
+    Frames.init({
+        container: '#payment-iframe-container',
+        url: '{{ payment_url|safe }}',
+        onLoadComplete: function () {
+            console.log('Iframe loaded successfully');
+        },
+        onLoadFailed: function (error) {
+            console.error('Failed to load iframe:', error);
+        }
+    });
+
+    // Handle payment completion
+    window.addEventListener('message', function(ev) {
+        if (ev.data.type === 'PAYMENT_COMPLETED') {
+            if (ev.data.success) {
+                window.location.href = "{% url 'store:payment_success' order.id %}";
+            } else {
+                window.location.href = "{% url 'store:payment_cancel' order.id %}";
+            }
+        }
+    }, false);
+</script>
+
+<!-- Paymob JS SDK -->
+<script src="https://accept.paymob.com/js/iframe.js"></script>
+{% endblock %}

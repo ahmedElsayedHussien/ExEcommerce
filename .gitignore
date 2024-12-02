@@ -32,6 +32,22 @@ wheels/
 *.manifest 
 *.spec 
 
+# Installer logs 
+pip-log.txt 
+pip-delete-this-directory.txt 
+
+# Unit test / coverage reports 
+htmlcov/ 
+.tox/ 
+.coverage 
+.coverage.* 
+.cache 
+.pytest_cache/ 
+nosetests.xml 
+coverage.xml 
+*.cover 
+.hypothesis/ 
+
 # Environments 
 .env 
 .venv 
@@ -41,10 +57,24 @@ ENV/
 env.bak/ 
 venv.bak/
 
-# IDEs
-.vscode/
-.idea/
+# IDEs 
+.idea/ 
+.vscode/ 
+*.swp 
+*.swo 
 
-# OS Files
-.DS_Store
-Thumbs.db
+# OS Generated Files 
+.DS_Store 
+.DS_Store? 
+._* 
+.Spotlight-V100 
+.Trashes 
+ehthumbs.db 
+Thumbs.db 
+
+# PythonAnywhere 
+*.sqlite3 
+local_settings.py 
+
+# Static and Media Files 
+staticfiles/
